@@ -1,0 +1,39 @@
+# Sade-Feldman et al. 2018, Cell: "Defining T cell states associated with response to
+# checkpoint immunotherapy in melanoma". GEO GSE120575: 16,291 CD45+ cells, 48 tumor
+# samples, 32 patients, Smart-seq2, values are log2(TPM+1).
+data:
+  expression_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/GSE120575_Sade_Feldman_melanoma_single_cells_TPM_GEO.txt.gz
+  metadata_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/GSE120575_patient_ID_single_cells.txt.gz
+  raw_dir: data/raw
+  processed_dir: data/processed
+  # .obs columns built by tumor_response.io.load_sade_feldman
+  sample_column: sample        # Pre_P1, Post_P1, Post_P1_2 (second lesion), ...
+  patient_column: patient      # P1, P2, ...
+  timepoint_column: timepoint  # Pre (baseline) / Post (on treatment)
+  response_column: response    # Responder / Non-responder (labelled per sample)
+  already_log_normalized: true
+
+qc:
+  # The authors already filtered cells (every cell has >1,000 detected genes), so these
+  # thresholds mostly guard against outliers.
+  min_genes: 1000
+  max_genes: 10000
+  min_cells: 10
+  max_pct_mito: 20
+
+preprocess:
+  target_sum: 10000   # only used when already_log_normalized is false
+  n_top_genes: 2000
+  n_pcs: 30
+
+clustering:
+  n_neighbors: 15
+  resolution: 1.0
+
+analysis:
+  min_cells_per_sample: 10   # samples with fewer cells of a type are skipped in pseudobulk
+  signature_size: 25         # genes up + genes down in each learned response signature
+
+output:
+  figures_dir: results/figures
+  tables_dir: results/tables

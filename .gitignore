@@ -1,0 +1,28 @@
+# Data and outputs (large / regenerable)
+data/raw/*
+data/processed/*
+results/figures/*
+results/tables/*
+!**/.gitkeep
+*.h5ad
+*.h5
+*.loom
+*.mtx
+*.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
