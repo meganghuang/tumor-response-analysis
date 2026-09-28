@@ -23,6 +23,67 @@ def composition_by_sample(
     return fractions.join(sample_info.astype(str))
 
 
+CONFLICTING = "Conflicting"
+
+
+def _single_label(values: pd.Series) -> str:
+    """The one label shared by a patient's samples, or `Conflicting` if they disagree."""
+    unique = values.dropna().unique()
+    return str(unique[0]) if len(unique) == 1 else CONFLICTING
+
+
+def aggregate_to_patient(
+    comp: pd.DataFrame,
+    cell_types: list[str],
+    patient_col: str = "patient",
+    annotations: tuple[str, ...] = ("response", "therapy"),
+) -> pd.DataFrame:
+    """One row per patient: mean cell-type fraction across that patient's samples.
+
+    Samples are not independent -- 13 of the 32 patients contribute more than one biopsy --
+    so the patient is the correct unit for a between-patient comparison. Response is
+    annotated per biopsy in this dataset and four patients have lesions that disagree; those
+    patients are labelled `Conflicting` rather than being silently assigned to a group.
+    """
+    out = comp.groupby(patient_col)[cell_types].mean()
+    for col in annotations:
+        if col in comp.columns:
+            out[col] = comp.groupby(patient_col)[col].agg(_single_label)
+    out.index.name = patient_col
+    out[patient_col] = out.index.astype(str)
+    return out
+
+
+def conflicting_patients(
+    comp: pd.DataFrame, patient_col: str = "patient", response_col: str = "response"
+) -> list[str]:
+    """Patients whose biopsies carry more than one distinct response label."""
+    n = comp.groupby(patient_col)[response_col].nunique()
+    return sorted(str(p) for p in n[n > 1].index)
+
+
+def therapy_switchers(
+    comp: pd.DataFrame, patient_col: str = "patient", therapy_col: str = "therapy"
+) -> list[str]:
+    """Patients whose biopsies were taken under more than one therapy."""
+    n = comp.groupby(patient_col)[therapy_col].nunique()
+    return sorted(str(p) for p in n[n > 1].index)
+
+
+def single_timepoint_samples(
+    comp: pd.DataFrame, patient_col: str = "patient", time_col: str = "timepoint"
+) -> pd.DataFrame:
+    """Samples from patients biopsied at only one timepoint.
+
+    An unpaired Pre-versus-Post test needs two independent groups, but 11 patients here
+    contribute to both. Restricting to patients present at a single timepoint makes the two
+    groups genuinely disjoint; the paired test covers the rest.
+    """
+    n_time = comp.groupby(patient_col)[time_col].nunique()
+    keep = n_time[n_time == 1].index
+    return comp[comp[patient_col].isin(keep)]
+
+
 def _bh(pvalues: pd.Series) -> pd.Series:
     q = np.full(len(pvalues), np.nan)
     ok = pvalues.notna().to_numpy()

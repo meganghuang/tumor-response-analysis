@@ -33,6 +33,10 @@ clustering:
 analysis:
   min_cells_per_sample: 10   # samples with fewer cells of a type are skipped in pseudobulk
   signature_size: 25         # genes up + genes down in each learned response signature
+  min_frac_expressed: 0.1    # gene detection filter; refitted inside each CV fold
+  # Response is annotated per biopsy and 13 of 32 patients gave more than one biopsy, so
+  # the patient-level comparison is the primary result and the per-biopsy one is secondary.
+  primary_unit: patient
 
 output:
   figures_dir: results/figures

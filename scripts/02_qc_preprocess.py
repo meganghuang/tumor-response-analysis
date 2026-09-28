@@ -22,12 +22,23 @@ def main():
         adata.write_h5ad(cache)
     print(f"Loaded: {adata.n_obs} cells x {adata.n_vars} genes, {adata.obs['sample'].nunique()} samples")
 
-    annotate_qc_metrics(adata)
-    sc.pl.violin(adata, ["n_genes_by_counts", "pct_counts_mt"], multi_panel=True,
-                 save="_qc.png", show=False)
+    log_normalized = cfg["data"]["already_log_normalized"]
+    annotate_qc_metrics(adata, log_normalized=log_normalized)
+    print(f"Mitochondrial genes in this annotation: {adata.uns['n_mito_genes']}")
+    metrics = ["n_genes_by_counts", "pct_counts_mt"]
+    if "pct_counts_mt_logscale" in adata.obs:
+        metrics.append("pct_counts_mt_logscale")
+        print("pct mito, linear scale vs uncorrected log scale (mean, 95th pct): "
+              f"{adata.obs['pct_counts_mt'].mean():.2f} / "
+              f"{adata.obs['pct_counts_mt'].quantile(0.95):.2f} vs "
+              f"{adata.obs['pct_counts_mt_logscale'].mean():.2f} / "
+              f"{adata.obs['pct_counts_mt_logscale'].quantile(0.95):.2f}")
+    sc.pl.violin(adata, metrics, multi_panel=True, save="_qc.png", show=False)
 
     q = cfg["qc"]
-    adata = filter_cells_and_genes(adata, q["min_genes"], q["max_genes"], q["min_cells"], q["max_pct_mito"])
+    adata = filter_cells_and_genes(adata, q["min_genes"], q["max_genes"], q["min_cells"],
+                                   q["max_pct_mito"], log_normalized=log_normalized)
+    print(f"Cells removed by each QC rule: {adata.uns['qc_removed']}")
     print(f"After QC: {adata.n_obs} cells x {adata.n_vars} genes")
 
     p = cfg["preprocess"]
