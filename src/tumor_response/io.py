@@ -67,6 +67,12 @@ def load_sade_feldman(raw_dir: Path) -> ad.AnnData:
     """Expression matrix with sample, patient, timepoint, response and therapy in .obs."""
     adata = read_expression(raw_dir / EXPRESSION_FILE)
     meta = read_metadata(raw_dir / METADATA_FILE)
+    # Metadata is aligned by label, so duplicate cell titles would misalign silently.
+    duplicated = adata.obs_names[adata.obs_names.duplicated()]
+    if len(duplicated):
+        raise ValueError(f"{len(duplicated)} duplicate cell titles, e.g. {list(duplicated[:3])}")
+    if meta.index.duplicated().any():
+        raise ValueError("duplicate cell titles in the metadata file")
     missing = adata.obs_names.difference(meta.index)
     if len(missing):
         raise ValueError(f"{len(missing)} cells have no metadata, e.g. {list(missing[:3])}")

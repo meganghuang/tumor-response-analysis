@@ -74,9 +74,12 @@ def find_markers(adata: ad.AnnData, groupby: str, n_genes: int = 50) -> pd.DataF
     return df.groupby("group", observed=True).head(n_genes).reset_index(drop=True)
 
 
-def cd8_mask(adata: ad.AnnData) -> pd.Series:
+def cd8_mask(adata: ad.AnnData, genes: tuple[str, ...] = ("CD8A", "CD8B")) -> pd.Series:
     """CD8 T cells: CD8A or CD8B detected, outside the clusters that cannot be T cells."""
-    expr = adata.raw[:, ["CD8A", "CD8B"]].X
+    present = [g for g in genes if g in adata.raw.var_names]
+    if not present:
+        raise ValueError(f"none of {genes} are present in this annotation")
+    expr = adata.raw[:, present].X
     expr = expr.toarray() if sparse.issparse(expr) else np.asarray(expr)
     detected = (expr > 0).any(axis=1)
     in_t_cluster = ~adata.obs["cell_type"].isin(NON_T_CELL_TYPES).to_numpy()
