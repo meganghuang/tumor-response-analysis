@@ -1,0 +1,7 @@
+signature,unit,n,auc,cross_validated
+TCF7+ fraction of CD8 T cells (from the paper),patient,28,0.7888888888888889,not needed (no fitting)
+TCF7+ fraction of CD8 T cells (from the paper),biopsy,47,0.7205882352941176,not needed (no fitting)
+"Learned 25+25 gene signature, All immune cells","biopsy, all biopsies",48,0.8785578747628083,leave-one-patient-out
+"Learned 25+25 gene signature, All immune cells","biopsy, excluding 4 label-conflicted patients",38,0.8910256410256411,leave-one-patient-out
+"Learned 25+25 gene signature, CD8 T cells","biopsy, all biopsies",47,0.8862745098039215,leave-one-patient-out
+"Learned 25+25 gene signature, CD8 T cells","biopsy, excluding 4 label-conflicted patients",38,0.8910256410256411,leave-one-patient-out
