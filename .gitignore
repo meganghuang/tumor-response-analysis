@@ -1,14 +1,19 @@
-# Data and outputs (large / regenerable)
+# Data (large, regenerable from GEO)
 data/raw/*
 data/processed/*
-results/figures/*
-results/tables/*
 !**/.gitkeep
 *.h5ad
 *.h5
 *.loom
 *.mtx
 *.gz
+
+# Outputs. Figures and tables are tracked so the reported numbers are readable from the
+# repository; see results/README.md for which files a given commit actually carries.
+# Intermediate objects are not.
+*.rds
+results/**/*.pdf
+results/**/*.svg
 
 # Python
 __pycache__/
@@ -20,6 +25,11 @@ venv/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
 
 # OS / editor
 .DS_Store

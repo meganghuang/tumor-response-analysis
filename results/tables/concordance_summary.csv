@@ -1,0 +1,14 @@
+metric,value
+cells in scanpy path,14505.0
+cells in Seurat path,14505.0
+cells in both,14505.0
+"clusters, scanpy (Leiden)",24.0
+"clusters, Seurat (Louvain)",22.0
+"adjusted Rand index, clusters",0.2864234758435127
+"adjusted mutual information, clusters",0.49885991740734603
+"cell types, scanpy",9.0
+"cell types, Seurat",10.0
+cell-type labels identical (fraction of cells),0.47542226818338507
+"adjusted Rand index, cell types",0.2919985531669519
+median per-sample composition Pearson r (shared cell types),0.9851760586427243
+median top-50 marker Jaccard (shared cell types),0.26582278481012656
