@@ -1,9 +1,17 @@
-name: tumor-response
-channels:
-  - conda-forge
-  - bioconda
+name: melanoma-icb
+channels: [conda-forge, bioconda]
 dependencies:
   - python=3.11
-  - pip
-  - pip:
-      - -e .[dev]
+  - scanpy>=1.10
+  - anndata>=0.10
+  - leidenalg
+  - python-igraph
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - matplotlib
+  - h5py
+  - pyyaml
+  - pytest
