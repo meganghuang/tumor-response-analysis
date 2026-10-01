@@ -1,30 +1,22 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tumor_response"
-version = "0.1.0"
-description = "scRNA-seq analysis of immunotherapy tumor response"
+name = "melanoma-icb-pipeline"
+version = "1.0.0"
+description = "Cell-population dynamics and response signatures in melanoma checkpoint immunotherapy (GSE120575)"
 requires-python = ">=3.10"
 dependencies = [
-    "scanpy>=1.10",
-    "anndata>=0.10",
-    "pandas>=2.0",
-    "numpy>=1.24",
-    "scipy>=1.11",
-    "matplotlib>=3.7",
-    "seaborn>=0.13",
-    "leidenalg>=0.10",
-    "pyyaml>=6.0",
-    "requests>=2.31",
+  "scanpy>=1.10", "anndata>=0.10", "leidenalg", "igraph", "numpy", "pandas",
+  "scipy", "scikit-learn", "statsmodels", "matplotlib", "pyyaml",
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "jupyterlab>=4", "ipykernel"]
+dev = ["pytest>=7"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+packages = ["pipeline"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

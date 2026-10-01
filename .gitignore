@@ -1,38 +1,12 @@
-# Data (large, regenerable from GEO)
-data/raw/*
-data/processed/*
-!**/.gitkeep
-*.h5ad
-*.h5
-*.loom
-*.mtx
-*.gz
-
-# Outputs. Figures and tables are tracked so the reported numbers are readable from the
-# repository; see results/README.md for which files a given commit actually carries.
-# Intermediate objects are not.
-*.rds
-results/**/*.pdf
-results/**/*.svg
-
-# Python
 __pycache__/
 *.py[cod]
-*.egg-info/
-.venv/
-venv/
-.pytest_cache/
-
-# Jupyter
 .ipynb_checkpoints/
+.pytest_cache/
+.venv/
+*.egg-info/
 
-# R
-.Rhistory
-.RData
-.Rproj.user/
-
-# OS / editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+# Raw and intermediate data are reproduced by run_pipeline.py, never committed.
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep

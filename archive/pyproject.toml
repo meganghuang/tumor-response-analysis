@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tumor_response"
+version = "0.1.0"
+description = "scRNA-seq analysis of immunotherapy tumor response"
+requires-python = ">=3.10"
+dependencies = [
+    "scanpy>=1.10",
+    "anndata>=0.10",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "matplotlib>=3.7",
+    "seaborn>=0.13",
+    "leidenalg>=0.10",
+    "pyyaml>=6.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "jupyterlab>=4", "ipykernel"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

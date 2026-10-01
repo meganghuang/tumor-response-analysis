@@ -1,43 +1,59 @@
-# Sade-Feldman et al. 2018, Cell: "Defining T cell states associated with response to
-# checkpoint immunotherapy in melanoma". GEO GSE120575: 16,291 CD45+ cells, 48 tumor
-# samples, 32 patients, Smart-seq2, values are log2(TPM+1).
-data:
-  expression_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/GSE120575_Sade_Feldman_melanoma_single_cells_TPM_GEO.txt.gz
-  metadata_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/GSE120575_patient_ID_single_cells.txt.gz
-  raw_dir: data/raw
-  processed_dir: data/processed
-  # .obs columns built by tumor_response.io.load_sade_feldman
-  sample_column: sample        # Pre_P1, Post_P1, Post_P1_2 (second lesion), ...
-  patient_column: patient      # P1, P2, ...
-  timepoint_column: timepoint  # Pre (baseline) / Post (on treatment)
-  response_column: response    # Responder / Non-responder (labelled per sample)
-  already_log_normalized: true
+# Configuration for the Sade-Feldman melanoma immunotherapy scRNA-seq pipeline.
+# Every tunable threshold in the analysis is declared here; no magic numbers in code.
+
+dataset:
+  accession: GSE120575
+  base_url: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE120nnn/GSE120575/suppl/
+  tpm_file: GSE120575_Sade_Feldman_melanoma_single_cells_TPM_GEO.txt.gz
+  metadata_file: GSE120575_patient_ID_single_cells.txt.gz
+
+paths:
+  raw: data/raw
+  processed: data/processed
+  results: results
 
 qc:
-  # The authors already filtered cells (every cell has >1,000 detected genes), so these
-  # thresholds mostly guard against outliers.
-  min_genes: 1000
-  max_genes: 10000
-  min_cells: 10
-  max_pct_mito: 20
+  min_genes: 1000        # Smart-seq2 plates; low-complexity wells are empty/dying
+  max_genes: 10000       # doublet-leaning upper tail
+  max_pct_mito: 20.0
+  min_cells_per_gene: 10
+  min_cells_per_sample: 50
 
-preprocess:
-  target_sum: 10000   # only used when already_log_normalized is false
+normalisation:
+  # Data are distributed as TPM. Sade-Feldman et al. use log2(TPM/10 + 1);
+  # dividing by 10 reflects the ~100k-transcript complexity of a single cell.
+  tpm_scale: 10.0
+  log_base: 2
+
+embedding:
   n_top_genes: 2000
+  hvg_flavor: seurat
+  scale_max_value: 10
   n_pcs: 30
-
-clustering:
   n_neighbors: 15
-  resolution: 1.0
+  knn_transformer: sklearn   # exact kNN; 'pynndescent' for approximate
+  leiden_resolution: 1.0
+  cd8_leiden_resolution: 0.5
+  random_state: 0
 
-analysis:
-  min_cells_per_sample: 10   # samples with fewer cells of a type are skipped in pseudobulk
-  signature_size: 25         # genes up + genes down in each learned response signature
-  min_frac_expressed: 0.1    # gene detection filter; refitted inside each CV fold
-  # Response is annotated per biopsy and 13 of 32 patients gave more than one biopsy, so
-  # the patient-level comparison is the primary result and the per-biopsy one is secondary.
-  primary_unit: patient
+annotation:
+  # A cluster is left Unresolved only when no lineage programme scores above the
+  # cross-cluster mean (z <= 0). No winner-take-all margin rule is applied: a
+  # margin rule discards cells whose top two lineages are both plausible, which
+  # in this dataset strands ~45% of T cells.
+  min_z: 0.0
 
-output:
-  figures_dir: results/figures
-  tables_dir: results/tables
+composition:
+  min_cells_per_unit: 100   # biopsies with fewer cells give unstable proportions
+  fdr_alpha: 0.1
+
+differential_expression:
+  min_cells_per_patient: 10     # cells of the focal population needed to pseudobulk a patient
+  min_patients_expressing: 5    # gene must be detected in this many patients
+  min_detection_rate: 0.05      # ... and in this fraction of cells of the population
+  fdr_alpha: 0.1
+
+signatures:
+  size: 25              # genes per direction (up in responders / up in non-responders)
+  n_permutations: 1000  # label permutations for the AUC null
+  random_state: 0
